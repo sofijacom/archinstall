@@ -1,18 +1,16 @@
-from typing import List, Optional, Any, TYPE_CHECKING
+from typing import override
 
-from archinstall.default_profiles.profile import ProfileType, GreeterType
+from archinstall.default_profiles.profile import GreeterType, ProfileType
 from archinstall.default_profiles.xorg import XorgProfile
-
-if TYPE_CHECKING:
-	_: Any
 
 
 class BspwmProfile(XorgProfile):
-	def __init__(self):
+	def __init__(self) -> None:
 		super().__init__('Bspwm', ProfileType.WindowMgr, description='')
 
 	@property
-	def packages(self) -> List[str]:
+	@override
+	def packages(self) -> list[str]:
 		# return super().packages + [
 		return [
 			'bspwm',
@@ -23,5 +21,6 @@ class BspwmProfile(XorgProfile):
 		]
 
 	@property
-	def default_greeter_type(self) -> Optional[GreeterType]:
+	@override
+	def default_greeter_type(self) -> GreeterType | None:
 		return GreeterType.Lightdm

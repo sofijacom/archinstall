@@ -1,44 +1,80 @@
 from pathlib import Path
-from typing import List, Optional, Any, TYPE_CHECKING
+from typing import TYPE_CHECKING, override
 
+from archinstall.tui import Alignment, EditMenu, ResultType
+
+from ..menu import ListManager
+from ..utils.util import prompt_dir
 from .device_model import SubvolumeModification
-from ..menu import TextInput, ListManager
 
 if TYPE_CHECKING:
-	_: Any
+	from collections.abc import Callable
+
+	from archinstall.lib.translationhandler import DeferredTranslation
+
+	_: Callable[[str], DeferredTranslation]
 
 
 class SubvolumeMenu(ListManager):
-	def __init__(self, prompt: str, btrfs_subvols: List[SubvolumeModification]):
+	def __init__(
+		self,
+		btrfs_subvols: list[SubvolumeModification],
+		prompt: str | None = None
+	):
 		self._actions = [
 			str(_('Add subvolume')),
 			str(_('Edit subvolume')),
 			str(_('Delete subvolume'))
 		]
-		super().__init__(prompt, btrfs_subvols, [self._actions[0]], self._actions[1:])
 
-	def selected_action_display(self, subvolume: SubvolumeModification) -> str:
-		return str(subvolume.name)
+		super().__init__(
+			btrfs_subvols,
+			[self._actions[0]],
+			self._actions[1:],
+			prompt
+		)
 
-	def _add_subvolume(self, editing: Optional[SubvolumeModification] = None) -> Optional[SubvolumeModification]:
-		name = TextInput(f'\n\n{_("Subvolume name")}: ', editing.name if editing else '').run()
+	@override
+	def selected_action_display(self, selection: SubvolumeModification) -> str:
+		return str(selection.name)
 
-		if not name:
+	def _add_subvolume(self, preset: SubvolumeModification | None = None) -> SubvolumeModification | None:
+		result = EditMenu(
+			str(_('Subvolume name')),
+			alignment=Alignment.CENTER,
+			allow_skip=True,
+			default_text=str(preset.name) if preset else None
+		).input()
+
+		match result.type_:
+			case ResultType.Skip:
+				return preset
+			case ResultType.Selection:
+				name = result.text()
+			case ResultType.Reset:
+				raise ValueError('Unhandled result type')
+
+		header = f"{_('Subvolume name')}: {name}\n"
+
+		path = prompt_dir(
+			str(_("Subvolume mountpoint")),
+			header=header,
+			allow_skip=True,
+			validate=False
+		)
+
+		if not path:
 			return None
 
-		mountpoint = TextInput(f'{_("Subvolume mountpoint")}: ', str(editing.mountpoint) if editing else '').run()
+		return SubvolumeModification(Path(name), path)
 
-		if not mountpoint:
-			return None
-
-		return SubvolumeModification(Path(name), Path(mountpoint))
-
+	@override
 	def handle_action(
 		self,
 		action: str,
-		entry: Optional[SubvolumeModification],
-		data: List[SubvolumeModification]
-	) -> List[SubvolumeModification]:
+		entry: SubvolumeModification | None,
+		data: list[SubvolumeModification]
+	) -> list[SubvolumeModification]:
 		if action == self._actions[0]:  # add
 			new_subvolume = self._add_subvolume()
 

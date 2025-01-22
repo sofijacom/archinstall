@@ -8,9 +8,9 @@
 Just another guided/automated [Arch Linux](https://wiki.archlinux.org/index.php/Arch_Linux) installer with a twist.
 The installer also doubles as a python library to install Arch Linux and manage services, packages, and other things inside the installed system *(Usually from a live medium)*.
 
-* archinstall [discord](https://discord.gg/cqXU88y) server
-* archinstall [matrix.org](https://app.element.io/#/room/#archinstall:matrix.org) channel
-* archinstall [#archinstall@irc.libera.chat](irc://#archinstall@irc.libera.chat:6697)
+* archinstall [discord](https://discord.gg/aDeMffrxNg) server
+* archinstall [#archinstall:matrix.org](https://matrix.to/#/#archinstall:matrix.org) Matrix channel
+* archinstall [#archinstall@irc.libera.chat:6697](https://web.libera.chat/?channel=#archinstall)
 * archinstall [documentation](https://archinstall.archlinux.page/)
 
 # Installation & Usage
@@ -59,7 +59,7 @@ archinstall --config <path to user config file or URL> --creds <path to user cre
 # Help or Issues
 
 If you come across any issues, kindly submit your issue here on Github or post your query in the
-[discord](https://discord.gg/cqXU88y) help channel.
+[discord](https://discord.gg/aDeMffrxNg) help channel.
 
 When submitting an issue, please:
 * Provide the stacktrace of the output if applicable
@@ -225,6 +225,13 @@ It will go through everything from packaging, building and running *(with qemu)*
 
 
 # FAQ
+
+## Keyring out-of-date
+For a description of the problem see https://archinstall.archlinux.page/help/known_issues.html#keyring-is-out-of-date-2213 and discussion in issue https://github.com/archlinux/archinstall/issues/2213.
+
+For a quick fix the below command will install the latest keyrings
+
+```pacman -Sy archlinux-keyring```
 
 ## How to dual boot with Windows
 

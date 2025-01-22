@@ -1,7 +1,6 @@
 import re
 from pathlib import Path
 from shutil import copy2
-from typing import List
 
 from .repo import Repo
 
@@ -10,22 +9,22 @@ class Config:
 	def __init__(self, target: Path):
 		self.path = Path("/etc") / "pacman.conf"
 		self.chroot_path = target / "etc" / "pacman.conf"
-		self.repos: List[Repo] = []
+		self.repos: list[Repo] = []
 
-	def enable(self, repo: Repo):
+	def enable(self, repo: Repo) -> None:
 		self.repos.append(repo)
 
-	def apply(self):
+	def apply(self) -> None:
 		if not self.repos:
 			return
 
-		if Repo.Testing in self.repos:
-			if Repo.Multilib in self.repos:
-				repos_pattern = f'({Repo.Multilib.value}|.+-{Repo.Testing.value})'
+		if Repo.TESTING in self.repos:
+			if Repo.MULTILIB in self.repos:
+				repos_pattern = f'({Repo.MULTILIB}|.+-{Repo.TESTING})'
 			else:
-				repos_pattern = f'(?!{Repo.Multilib.value}).+-{Repo.Testing.value}'
+				repos_pattern = f'(?!{Repo.MULTILIB}).+-{Repo.TESTING}'
 		else:
-			repos_pattern = Repo.Multilib.value
+			repos_pattern = Repo.MULTILIB
 
 		pattern = re.compile(rf"^#\s*\[{repos_pattern}\]$")
 
@@ -39,6 +38,6 @@ class Config:
 				else:
 					f.write(line)
 
-	def persist(self):
+	def persist(self) -> None:
 		if self.repos:
 			copy2(self.path, self.chroot_path)
